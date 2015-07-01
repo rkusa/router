@@ -15,7 +15,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/julienschmidt/httprouter"
+	httprouter "github.com/dimfeld/httptreemux"
 	"github.com/rkgo/web"
 	"golang.org/x/net/context"
 )
@@ -31,20 +31,18 @@ type Handler func(web.Context)
 // Router can be used to dispatch requests to different handler functions
 // via configurable routes
 type Router struct {
-	router httprouter.Router
+	router httprouter.TreeMux
 }
 
 // New returns a new initialized Router.
 func New() *Router {
-	return &Router{
-		router: httprouter.Router{
-			RedirectTrailingSlash: true,
-			RedirectFixedPath:     true,
-			NotFound: func(rw http.ResponseWriter, _ *http.Request) {
-				// do nothing
-			},
-		},
+	r := &Router{
+		router: *httprouter.New(),
 	}
+	r.router.NotFoundHandler = func(rw http.ResponseWriter, _ *http.Request) {
+		// do nothing
+	}
+	return r
 }
 
 // GET is a shortcut for router.Handle("GET", path, handle)
@@ -84,7 +82,7 @@ func (r *Router) DELETE(path string, handler Handler) {
 
 // Handle registers a new request handle with the given path and method.
 func (r *Router) Handle(method, path string, handler Handler) {
-	r.router.Handle(method, path, func(rw http.ResponseWriter, _ *http.Request, params httprouter.Params) {
+	r.router.Handle(method, path, func(rw http.ResponseWriter, _ *http.Request, params map[string]string) {
 		ctx, ok := rw.(web.Context)
 		if !ok {
 			panic(fmt.Errorf("invalid context"))
@@ -97,12 +95,12 @@ func (r *Router) Handle(method, path string, handler Handler) {
 // Param reads the parameter for the given name from the provided context. The
 // result will be an empty string, if the parameter does not exist.
 func Param(ctx context.Context, name string) string {
-	params, ok := ctx.Value(paramsKey).(httprouter.Params)
+	params, ok := ctx.Value(paramsKey).(map[string]string)
 	if !ok {
 		return ""
 	}
 
-	return params.ByName(name)
+	return params[name]
 }
 
 // Middleware returns a [rkgo/web](https://github.com/rkgo/web) compatible
