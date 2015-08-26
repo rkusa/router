@@ -39,6 +39,7 @@ func New() *Router {
 	r := &Router{
 		router: *httprouter.New(),
 	}
+	r.router.PathSource = httprouter.URLPath
 	r.router.NotFoundHandler = func(rw http.ResponseWriter, _ *http.Request) {
 		// do nothing
 	}
