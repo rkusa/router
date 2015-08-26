@@ -1,5 +1,5 @@
 // A [middleware](https://github.com/rkgo/web) wrapper for the high performance
-// HTTP request router [httprouter](https://github.com/julienschmidt/httprouter)
+// HTTP request router [httptreemux](http://github.com/dimfeld/httptreemux)
 //
 //  routes := router.New()
 //

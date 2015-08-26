@@ -1,6 +1,6 @@
 # router
 
-A [middleware](https://github.com/rkgo/web) wrapper for the high performance HTTP request router [httprouter](https://github.com/julienschmidt/httprouter)
+A [middleware](https://github.com/rkgo/web) wrapper for the high performance HTTP request router [httptreemux](http://github.com/dimfeld/httptreemux)
 
 [![Build Status][drone]](https://ci.rkusa.st/github.com/rkgo/router)
 [![GoDoc][godoc]](https://godoc.org/github.com/rkgo/router)
