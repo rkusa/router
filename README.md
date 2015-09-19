@@ -2,7 +2,7 @@
 
 A [middleware](https://github.com/rkgo/web) wrapper for the high performance HTTP request router [httptreemux](http://github.com/dimfeld/httptreemux)
 
-[![Build Status][drone]](https://ci.rkusa.st/github.com/rkgo/router)
+[![Build Status][drone]](https://ci.rkusa.st/rkgo/router)
 [![GoDoc][godoc]](https://godoc.org/github.com/rkgo/router)
 
 ### Example
@@ -17,5 +17,5 @@ routes.POST("/login", auth.Login)
 app.Use(routes.Middleware())
 ```
 
-[drone]: http://ci.rkusa.st/api/badge/github.com/rkgo/router/status.svg?branch=master&style=flat-square
+[drone]: http://ci.rkusa.st/api/badges/rkgo/router/status.svg?style=flat-square
 [godoc]: http://img.shields.io/badge/godoc-reference-blue.svg?style=flat-square
