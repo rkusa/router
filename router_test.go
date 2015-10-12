@@ -9,7 +9,12 @@ import (
 )
 
 func TestMiddleware(t *testing.T) {
-	rec := request(t, "GET", "/foo")
+	r := New()
+	r.GET("/foo", func(ctx web.Context) {
+		ctx.Write([]byte("bar"))
+	})
+
+	rec := request(t, r, "GET", "/foo")
 
 	if rec.Code != http.StatusOK {
 		t.Errorf("request failed")
@@ -21,19 +26,74 @@ func TestMiddleware(t *testing.T) {
 }
 
 func TestNotFound(t *testing.T) {
-	rec := request(t, "GET", "/bar")
+	r := New()
+	r.GET("/foo", func(ctx web.Context) {
+		ctx.Write([]byte("bar"))
+	})
+
+	rec := request(t, r, "GET", "/bar")
 
 	if rec.Code != http.StatusNotFound {
 		t.Errorf("expected status 404, got: %d", rec.Code)
 	}
 }
 
-func request(t *testing.T, method, path string) *httptest.ResponseRecorder {
-	router := New()
-	router.GET("/foo", func(ctx web.Context) {
-		ctx.Write([]byte("bar"))
-	})
+func TestGroup(t *testing.T) {
+	r := New()
+	a := r.Group("/a")
+	{
+		a.GET("/", func(ctx web.Context) {
+			ctx.Write([]byte("/a"))
+		})
 
+		a.GET("/b", func(ctx web.Context) {
+			ctx.Write([]byte("/a/b"))
+		})
+
+		a.GET("c", func(ctx web.Context) {
+			ctx.Write([]byte("/a/c"))
+		})
+
+		d := a.Group("d")
+		{
+			d.GET("", func(ctx web.Context) {
+				ctx.Write([]byte("/a/d"))
+			})
+
+			d.GET("/e", func(ctx web.Context) {
+				ctx.Write([]byte("/a/d/e"))
+			})
+		}
+
+		f := a.Group("f/")
+		{
+			f.GET("/g", func(ctx web.Context) {
+				ctx.Write([]byte("/a/f/g"))
+			})
+		}
+	}
+
+	paths := []string{
+		"/a", "/a/b", "/a/c", "/a/d", "/a/d/e", "/a/f/g",
+	}
+
+	for _, path := range paths {
+		rec := request(t, r, "GET", path)
+		if rec.Code != http.StatusOK || rec.Body.String() != path {
+			t.Errorf(
+				"path %s not working as expected: status: %d, body: %s",
+				path, rec.Code, rec.Body.String(),
+			)
+		}
+	}
+
+	rec := request(t, r, "GET", "/a/f")
+	if rec.Code != http.StatusNotFound {
+		t.Errorf("expected status 404, got: %d", rec.Code)
+	}
+}
+
+func request(t *testing.T, router *Router, method, path string) *httptest.ResponseRecorder {
 	app := web.New()
 	app.Use(router.Middleware())
 

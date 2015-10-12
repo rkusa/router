@@ -14,6 +14,7 @@ package router
 import (
 	"fmt"
 	"net/http"
+	pathhelper "path"
 
 	httprouter "github.com/dimfeld/httptreemux"
 	"github.com/rkgo/web"
@@ -31,13 +32,15 @@ type Handler func(web.Context)
 // Router can be used to dispatch requests to different handler functions
 // via configurable routes
 type Router struct {
-	router httprouter.TreeMux
+	router   httprouter.TreeMux
+	basePath string
 }
 
 // New returns a new initialized Router.
 func New() *Router {
 	r := &Router{
-		router: *httprouter.New(),
+		router:   *httprouter.New(),
+		basePath: "",
 	}
 	r.router.PathSource = httprouter.URLPath
 	r.router.NotFoundHandler = func(rw http.ResponseWriter, _ *http.Request) {
@@ -83,14 +86,27 @@ func (r *Router) DELETE(path string, handler Handler) {
 
 // Handle registers a new request handle with the given path and method.
 func (r *Router) Handle(method, path string, handler Handler) {
-	r.router.Handle(method, path, func(rw http.ResponseWriter, _ *http.Request, params map[string]string) {
-		ctx, ok := rw.(web.Context)
-		if !ok {
-			panic(fmt.Errorf("invalid context"))
-		}
+	r.router.Handle(
+		method,
+		pathhelper.Join(r.basePath, path),
+		func(rw http.ResponseWriter, _ *http.Request, params map[string]string) {
+			ctx, ok := rw.(web.Context)
+			if !ok {
+				panic(fmt.Errorf("invalid context"))
+			}
 
-		handler(ctx.WithValue(paramsKey, params))
-	})
+			handler(ctx.WithValue(paramsKey, params))
+		},
+	)
+}
+
+// Group creates a new route group with the given path prefix. All route created
+// using the returned Router are prefixed accoringly.
+func (r *Router) Group(path string) *Router {
+	return &Router{
+		router:   r.router,
+		basePath: pathhelper.Join(r.basePath, path),
+	}
 }
 
 // Param reads the parameter for the given name from the provided context. The
