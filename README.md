@@ -2,8 +2,6 @@
 
 A middleware that works well (but not exclusively) with [rkusa/web](https://github.com/rkusa/web) and provides high performance HTTP request routing using [httptreemux](http://github.com/dimfeld/httptreemux).
 
-A [middleware](https://github.com/rkgo/web) wrapper for the high performance HTTP request router [httptreemux](http://github.com/dimfeld/httptreemux)
-
 [![Build Status][travis]](https://travis-ci.org/rkusa/router)
 [![GoDoc][godoc]](https://godoc.org/github.com/rkusa/router)
 
