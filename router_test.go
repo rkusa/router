@@ -5,13 +5,13 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/rkgo/web"
+	"github.com/rkusa/web"
 )
 
 func TestMiddleware(t *testing.T) {
 	r := New()
-	r.GET("/foo", func(ctx web.Context) {
-		ctx.Write([]byte("bar"))
+	r.GET("/foo", func(rw http.ResponseWriter, r *http.Request) {
+		rw.Write([]byte("bar"))
 	})
 
 	rec := request(t, r, "GET", "/foo")
@@ -27,8 +27,8 @@ func TestMiddleware(t *testing.T) {
 
 func TestNotFound(t *testing.T) {
 	r := New()
-	r.GET("/foo", func(ctx web.Context) {
-		ctx.Write([]byte("bar"))
+	r.GET("/foo", func(rw http.ResponseWriter, r *http.Request) {
+		rw.Write([]byte("bar"))
 	})
 
 	rec := request(t, r, "GET", "/bar")
@@ -42,33 +42,33 @@ func TestGroup(t *testing.T) {
 	r := New()
 	a := r.Group("/a")
 	{
-		a.GET("/", func(ctx web.Context) {
-			ctx.Write([]byte("/a"))
+		a.GET("/", func(rw http.ResponseWriter, r *http.Request) {
+			rw.Write([]byte("/a"))
 		})
 
-		a.GET("/b", func(ctx web.Context) {
-			ctx.Write([]byte("/a/b"))
+		a.GET("/b", func(rw http.ResponseWriter, r *http.Request) {
+			rw.Write([]byte("/a/b"))
 		})
 
-		a.GET("c", func(ctx web.Context) {
-			ctx.Write([]byte("/a/c"))
+		a.GET("c", func(rw http.ResponseWriter, r *http.Request) {
+			rw.Write([]byte("/a/c"))
 		})
 
 		d := a.Group("d")
 		{
-			d.GET("", func(ctx web.Context) {
-				ctx.Write([]byte("/a/d"))
+			d.GET("", func(rw http.ResponseWriter, r *http.Request) {
+				rw.Write([]byte("/a/d"))
 			})
 
-			d.GET("/e", func(ctx web.Context) {
-				ctx.Write([]byte("/a/d/e"))
+			d.GET("/e", func(rw http.ResponseWriter, r *http.Request) {
+				rw.Write([]byte("/a/d/e"))
 			})
 		}
 
 		f := a.Group("f/")
 		{
-			f.GET("/g", func(ctx web.Context) {
-				ctx.Write([]byte("/a/f/g"))
+			f.GET("/g", func(rw http.ResponseWriter, r *http.Request) {
+				rw.Write([]byte("/a/f/g"))
 			})
 		}
 	}

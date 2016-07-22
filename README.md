@@ -1,21 +1,28 @@
 # router
 
+A middleware that works well (but not exclusively) with [rkusa/web](https://github.com/rkusa/web) and provides high performance HTTP request routing using [httptreemux](http://github.com/dimfeld/httptreemux).
+
 A [middleware](https://github.com/rkgo/web) wrapper for the high performance HTTP request router [httptreemux](http://github.com/dimfeld/httptreemux)
 
-[![Build Status][drone]](https://ci.rkusa.st/rkgo/router)
-[![GoDoc][godoc]](https://godoc.org/github.com/rkgo/router)
+[![Build Status][travis]](https://travis-ci.org/rkusa/router)
+[![GoDoc][godoc]](https://godoc.org/github.com/rkusa/router)
 
 ### Example
 
 ```go
 routes := router.New()
 
-routes.GET("/", auth.Index)
-routes.GET("/logout", auth.Logout)
-routes.POST("/login", auth.Login)
+routes.GET("/users/:id", func(rw http.ResponseWriter, r *http.Request) {
+  id := router.Param(r, "id")
+  // ...
+})
 
 app.Use(routes.Middleware())
 ```
 
-[drone]: http://ci.rkusa.st/api/badges/rkgo/router/status.svg?style=flat-square
-[godoc]: http://img.shields.io/badge/godoc-reference-blue.svg?style=flat-square
+## License
+
+[MIT](LICENSE)
+
+[travis]: https://img.shields.io/travis/rkusa/router.svg
+[godoc]: http://img.shields.io/badge/godoc-reference-blue.svg
