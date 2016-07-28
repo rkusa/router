@@ -100,10 +100,16 @@ func (rt *Router) Group(path string) *Router {
 	}
 }
 
-// Param reads the parameter for the given name from the provided context. The
+// Param reads the parameter for the given name from the provided request. The
 // result will be an empty string, if the parameter does not exist.
 func Param(r *http.Request, name string) string {
-	params, ok := r.Context().Value(paramsKey).(map[string]string)
+	return ParamFromContext(r.Context(), name)
+}
+
+// Param reads the parameter for the given name from the provided context. The
+// result will be an empty string, if the parameter does not exist.
+func ParamFromContext(ctx context.Context, name string) string {
+	params, ok := ctx.Value(paramsKey).(map[string]string)
 	if !ok {
 		return ""
 	}
